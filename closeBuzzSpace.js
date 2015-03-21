@@ -1,0 +1,1 @@
+/* File containing the functionality required to close an active BuzzSpace */
