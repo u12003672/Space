@@ -1,0 +1,1 @@
+/* File containing functionality required to create a new BuzzSpace with the welcome thread */
