@@ -20,12 +20,14 @@ BuzzSpace = {
     isOpen: "",
     year_group: "",
     isActive: "",
-
+	
+    /*create buzz sapce request which takes in the users login details and moduleID and creates a login request to recieve a userID*/			
     createBuzzSpaceRequest: function(_username, _password, _moduleID)
     {
         this.userID = loginRequest(_username, _password);
         this.moduleID = _moduleID;
-        this.year_group = date.currentYear();
+	var today = new Date();    
+        this.year_group = today.getFullYear();
 
     },
 
