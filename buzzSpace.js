@@ -18,36 +18,41 @@ BuzzSpace = {
     moduleID: "",
     userID: "",
     isOpen: "",
-    year_group: "",
+    academicYear: "",
     isActive: "",
 	
     /*create buzz sapce request which takes in the users login details and moduleID and creates a login request to recieve a userID*/			
     createBuzzSpaceRequest: function(_username, _password, _moduleID)
     {
-        this.userID = loginRequest(_username, _password);
+        this.userID = loginRequest(_username, _password);//First see if the user is logged in, if not log them in
         this.moduleID = _moduleID;
 	var today = new Date();    
-        this.year_group = today.getFullYear();
+        this.academicYear = today.getFullYear();
+	
+	if(this.userID != null && this.moduleID)//If the user exists and the module exists
+	{	    
+		this.createBuzzSpace(this.userID, this.moduleID, this.academicYear);//Call the createBuzzSpace function with the user, module and year as parameters 
+	}
 
     },
 
 
     /*Critical main function that checks for all the preconditions for the BuzzSpace to be created.
     *It then returns a service by creating a BuzzSpace and that a root thread has been created for BuzzSpace*/
-    createBuzzSpace: function (createBuzzSpaceRequest) {
+    createBuzzSpace: function (_userID, _moduleID, _academicYear) {
 
 
         try {
             if (this.getBuzzSpace(_moduleID) == false) {
 
-                if(this.getActiveModulesForYear(_year_group) == true)
+                if(this.getActiveModulesForYear(_academicYear) == true)
                 {
                     if(this.getUserRoleForModule(_userID) == true)
                     {
-                        this.storeBuzzSpace();
-                        this.registerOnSpace(_userID);
-                        this.assignAdministrator(_userID);
-                        this.submitPost();
+                        this.storeBuzzSpace();//Stores the space to a mongoDB or persitant entityManager
+                        this.registerOnSpace(_userID);//register the lecturer on the space
+                        this.assignAdministrator(_userID);//Assign the lecture as an admin on the space
+                        this.submitPost();//Create a root thread and a nice welcome message
                     }
                     else{
                         throw "The user is not authorised to create a BuzzSpace";
@@ -73,19 +78,14 @@ BuzzSpace = {
             this.isOpen = false;
     },
 
+    /*Provides a persistent services provided by a JPA-compliant entitymManager to select the BuzzSpace*/
     getBuzzSpaceRequest: function(_moduleID)
     {
-        var databaseUrl = "db";
-        var collections = ["BuzzSpaces"];
-        var db = require("mongojs").connect(databaseUrl, collections);
-
-
-        this.spaceID = db.users.get()//need to query mongoDB for the buzzSpace of a certain module
-
+	//While it queries if finds a sapceID for the module return the spaceID or null
         return _spaceID;
     },
 
-    /*Provides a persistent services provided by a JPA-compliant entitymManager to select the BuzzSpace*/
+    /*returns true or false based on if the space exists or not*/
     getBuzzSpace: function (_moduleID) {
 
         if(getBuzzSpaceRequest(_moduleID) != null)
@@ -134,6 +134,8 @@ BuzzSpace = {
             if( err || !saved ) console.log("Space not saved");
             else console.log("Space saved");
         });
+	
+	this.isOpen = true;
 
     },
 
@@ -158,7 +160,7 @@ BuzzSpace = {
         return userID;
     },
 
-    registerOnBuzzSpace: function(registerOnBuzzSpaceRequest)
+    registerOnSpace: function(_userID)
     {
         if(!this.isOpen)
             return new Error("Buzz space not active");
