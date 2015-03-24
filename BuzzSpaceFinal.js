@@ -5,6 +5,8 @@
 
 //Class that represents a space
 
+//TODO: Convert to NodeJS compatible module
+
 var BuzzSpace;
 BuzzSpace = {
     moduleID: "",
@@ -48,10 +50,12 @@ BuzzSpace = {
         /**
          * Register the user first  onto the space created
          */
+         //TODO: Where is registerUser?
             registerUser(_userID);
         /**
          * Make the user an admin for the space created
          */
+         //TODO: A user can't be assigned as an administrator - that comes from LDAP and is determined by the CS Department
             assignAdministrator(_userID);
 
         /**
@@ -81,8 +85,9 @@ BuzzSpace = {
      */
 
     createBuzzSpaceRequest: function (_userID,_moduleID) {
-
+        //TODO: Validation is done beforehand with intercepts
         this.userValid = validateUser(_userID); //return true if the user is recognised , Done by authorization through inteceptors
+        //TODO: Validation is done beforehand with intercepts
         this.userRoleValid = userRoleValid(_userID); // check to return true see if the user is a lecturer else return null
         this.spaceExists = spaceExists(_moduleID); //return true if space exists else null
 
@@ -106,8 +111,10 @@ BuzzSpace = {
      * @param _isOpen boolean to check if space is Active
      * @param _academicYear the year for which the space is to be created
      */
-    storeBuzzSpace: function (_moduleID, _isOpen ,_academicYear) {
 
+
+    storeBuzzSpace: function (_moduleID, _isOpen ,_academicYear) {
+        //TODO: Supply database to test with
         var databaseUrl = "db";
         var collections = ["BuzzSpaces"];
         var db = require("mongojs").connect(databaseUrl, collections);
@@ -124,6 +131,8 @@ BuzzSpace = {
      * Authorization module intercepts with this function to validate a user
      * @param _userID stores the user ID
      */
+
+     //TODO: Remove this - validation will be done with an Authentication Intercept
     validateUser: function (_userID) {
 
     //Authorization module to be included to allow for this method
@@ -134,7 +143,7 @@ BuzzSpace = {
      *Authorization module intercepts with this function to validate a users role
      * @param _userID stores the user ID
      */
-
+     //TODO: Remove this - We can assume that by the time this function is called - the user is valid (due to intercepts)
     userRoleValid: function (_userID) {
 
         // get user roles from CSDS Adapter
@@ -144,12 +153,14 @@ BuzzSpace = {
 
 
     spaceExists: function (_moduleID) {
-
+        //TODO: Missing implementation
         // get active spaces from MongoDB
+        //TODO: Authorization doesn't have an bearing on if a space exits or not? If I am not mistaking
         // Authorization module to be included to allow for this method
 
     },
 
+    //TODO:Remove - can not assign administrators, retreived from CS LDAP
     assignAdministrator: function (_userID) {
 
         this.admin = _userID;
@@ -201,6 +212,8 @@ BuzzSpace = {
      * @param userID represents the user ID
      * @param _moduleID represents the module code
      */
+
+     //TODO: Update DB
     registerOnSpace: function (userID,_moduleID) {
 
             users.add(userID,_moduleID);
@@ -209,9 +222,13 @@ BuzzSpace = {
     /**
      * Threads module to be required for this method hat creates a root thread for the space
      */
+     //TODO: Use a mock Thread Object
+     //TODO: Please implement
     createRootThread: function () {
 
     },
 
 
 };
+
+//TODO: Include exports
