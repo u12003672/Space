@@ -1,9 +1,9 @@
 /**
- * Created by Rhetoricalquiz on 3/21/2015.
+ * Created by Godfrey Mathe on 3/21/2015.
  */
 
 
-//Class that repsresents a space
+//Class that represents a space
 
 var BuzzSpace;
 BuzzSpace = {
@@ -85,6 +85,17 @@ BuzzSpace = {
         this.userValid = validateUser(_userID); //return true if the user is recognised , Done by authorization through inteceptors
         this.userRoleValid = userRoleValid(_userID); // check to return true see if the user is a lecturer else return null
         this.spaceExists = spaceExists(_moduleID); //return true if space exists else null
+
+        if(userValid)
+        {
+            if(userRoleValid){
+                if(!spaceExists)
+                {
+                    createBuzzSpace(_moduleID ,_academicYear,_userID );
+                }
+            }
+
+        }
 
     },
 
