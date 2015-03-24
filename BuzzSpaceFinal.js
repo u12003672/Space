@@ -1,25 +1,46 @@
 /**
- * Created by Godfrey Mathe on 3/21/2015.
+ * @author Godfrey Mathe, u13103394
+ * @author Semaka Malapane, u13081129
+ * @author Joseph Potgieter, u12003672
+ * @author Tsepo Ntsaba, u12003672
+ * @author Tebogo Seshibe, u13181442
+ * @version 0.0.5
  */
 
 
-//Class that represents a space
-
-//TODO: Convert to NodeJS compatible module
-
-var BuzzSpace;
-BuzzSpace = {
+/**
+ * 
+ * @description BuzzSpace class containing the resuired functions in the main specifications
+ */
+var BuzzSpace = 
+{
+    csds: require( "./CSDS"),
+    authorization: require( "./Authorization"),
     moduleID: "",
-    isOpen: "",
+    isOpen: false,
     academicYear: "",
-    activeSpaces:"",
-    _userValid:"",
-    _userRoleValid:"",
-    _spaceExists:"",
-    admin:"",
-    users:"",
+    profiles: [],
+    rootThread,
 
-
+    /**
+     * 
+     *  @description Simple login function
+     *  @param username The user id
+     *  @param password The password of the user
+     */
+    login: function( username, password )
+    {
+        try
+        {
+            csds.login( username, password );
+            return "Login Succesful";
+        }
+        catch( e )
+        {
+            return e.toString;
+        }
+    },
+    
     /**
      *
      * @constructor
@@ -227,8 +248,72 @@ BuzzSpace = {
     createRootThread: function () {
 
     },
-
-
+    
+    /**
+     * 
+     *  @description Return a user object
+     *  @param username The user id
+     */
+    getUserProfile: function( username )
+    {
+        return csds.getUserProfile( username );
+    },
+    
+    /**
+     * 
+     *  @description Function used to set a buzzspace inactive
+     *  @param username The user id
+     *  @module_id The id of the module being closed
+     */
+    closeBuzzSpace: function( user_id, module_id )
+    {
+        if( authorization.isAuthorized( user_id, module_id ) )
+        {
+            var space = csds.getBuzzSpace( module_id );
+            space.isOpen = false;
+            return true;
+        }
+        
+        else
+            throw "User \"" + user_id + "\" is not authorized in \"" + module + "\"".
+    },
+    
+    /**
+     * 
+     *  @description Function used to register a user to a buzzspace
+     *  @param username The user id
+     *  @module_id The id of the module the user is registering to
+     *  @param module_id The password of the user
+     */
+    registerOnBuzzSpace: function( username, module_id )
+    {
+        var space = csds.getBuzzSpace( module_id );
+        
+        if( space.isOpen )
+        {
+            var user = getUserProfile( username );
+            
+            if( user === null )
+                throw "User ID \"" + username + "\" does not exist";
+                
+            try
+            {
+                space.registerOnBuzzSpace( username );
+                return true;
+            }
+            catch( e )
+            {
+                throw e;
+            }
+        }
+        
+        else
+            throw "BuzzSpace \"" + module_id + "\" is closed";
+    }
 };
 
-//TODO: Include exports
+module.exports.login = BuzzSpace.login();
+module.exports.createBuzzSpace = BuzzSpace.createBuzzSpace();
+module.exports.closeBuzzSpace = BuzzSpace.closeBuzzSpace();
+module.exports.registerBuzzSpace = BuzzSpace.registerBuzzSpace();
+module.exports.getUserProfile = BuzzSpace.getUserProfile();
