@@ -1,193 +1,323 @@
 /**
- *University of Pretoria
- *COS 301 Engineering: BuzzSpace Module
- *
- *BuzzSpaces is the core module, which is responsible for managing the buzz spaces
- *for the different modules
+ * @author Godfrey Mathe, u13103394
+ * @author Semaka Malapane, u13081129
+ * @author Joseph Potgieter, u12003672
+ * @author Tsepo Ntsaba, u12003672
+ * @author Tebogo Seshibe, u13181442
+ * @author Muller Potgieter 
+ * @version 0.0.5
  */
 
-require("login.js");
-require("buzzDataSources.js");
-require("buzzThreads.js");
 
-var BuzzSpace;
-
-BuzzSpace = {
-
-    spaceID:"",
+/**
+ *
+ * @description BuzzSpace class containing the required functions in the main specifications
+ */
+var BuzzSpace =
+{
+    //csds: require( "./CSDS"),
+    //authorization: require( "./Authorization"),
     moduleID: "",
-    userID: "",
-    isOpen: "",
+    isOpen: false,
     academicYear: "",
-    isActive: "",
-	
-    /** create buzz sapce request which takes in the users login details and moduleID and creates a login request to recieve a userID @constructor */			
-    createBuzzSpaceRequest: function(_username, _password, _moduleID)
-    {
-        this.userID = loginRequest(_username, _password);/**First see if the user is logged in, if not log them in */
-        this.moduleID = _moduleID;
-	var today = new Date();    
-        this.academicYear = today.getFullYear();
-	
-	if(this.userID != null && this.moduleID)/**If the user exists and the module exists*/
-	{	    
-		this.createBuzzSpace(this.userID, this.moduleID, this.academicYear);/**Call the createBuzzSpace function with the user, module and year as parameters*/
-	}
+    profiles: [],
+    rootThread: null,
 
+    /**
+     *
+     *  @description Simple login function
+     *  @param username The user id
+     *  @param password The password of the user
+     */
+    login: function( _username, _password )
+    {
+        try
+        {
+            var loginRequest = { user_id: _username, password: _password };
+            //csds.login( loginRequest );
+            console.log( "Login Succesful" );
+        }
+        catch( e )
+        {
+            return e.toString;
+        }
+    },
+
+    /**
+     *
+     * @constructor
+     * This is the Constructor for the space class
+     */
+
+    BuzzSpace: function(){
+        this.moduleID = "";
+        this.isOpen = "";
+        this.academicYear = "";
     },
 
 
-    /**Critical main function that checks for all the preconditions for the BuzzSpace to be created.
-    *It then returns a service by creating a BuzzSpace and that a root thread has been created for BuzzSpace*/
-    createBuzzSpace: function (_userID, _moduleID, _academicYear) {
+    /**
+     *
+     * @param _moduleID
+     * represents the module code
+     * @param _academicYear
+     * represents the academic year for which the space is to be created
+     * @param _userID
+     * the identification of the user who spawns the request
+     *
+     * Function simply creates a new space if the user was authorised
+     */
+
+    createBuzzSpace: function (_moduleID ,_academicYear,_userID ) {
+
+        /**
+         * Register the user first  onto the space created
+         */
+            //TODO: Where is registerUser?
+        BuzzSpace.registerOnBuzzSpace(_userID, _moduleID);
+        /**
+         * Make the user an admin for the space created
+         */
+            //TODO: A user can't be assigned as an administrator - that comes from LDAP and is determined by the CS Department
+        //assignAdministrator(_userID);
+
+        /**
+         * Store space to persistance
+         */
+        //storeBuzzSpace();
+    },
 
 
-        try {
-            if (this.getBuzzSpace(_moduleID) == false) {
+    /**
+     *
+     * @BuzzSpaceExistsException
+     *
+     * Throw this exception when a buzz space already exists with same module id
+     */
+    BuzzSpaceExistsException: function () {
 
-                if(this.getActiveModulesForYear(_academicYear) == true)
+        print("Buzz Space Already Exists");
+    },
+
+
+    /**
+     * Function that creates a request
+     * and checks if the user is authorised to create a space and whether a space for the moduleID does not exist yet
+     * @param _userID stores the ID of the user
+     * @param _moduleID represents the module code
+     */
+
+    createBuzzSpaceRequest: function (_userID, _academicYear, _moduleID) {
+        //TODO: Validation is done beforehand with intercepts
+        var userValid = true; //authorization.validateUser(_userID); //return true if the user is recognised , Done by authorization through inteceptors
+        //TODO: Validation is done beforehand with intercepts
+        var userRoleValid = true; //authorization.userRoleValid(_userID); // check to return true see if the user is a lecturer else return null
+        var spaceExists = false; //csds.spaceExists(_moduleID); //return true if space exists else null
+
+        if(userValid)
+        {
+            if(userRoleValid){
+                if(!spaceExists)
                 {
-                    if(this.getUserRoleForModule(_userID) == true)
-                    {
-                        this.storeBuzzSpace();/** Stores the space to a mongoDB or persitant entityManager*/
-                        this.registerOnSpace(_userID);/**register the lecturer on the space*/
-                        this.assignAdministrator(_userID);/**Assign the lecture as an admin on the space*/
-                        this.submitPost();/**Create a root thread and a nice welcome message*/
-                    }
-                    else{
-                        throw "The user is not authorised to create a BuzzSpace";
-                    }
-                }
-                else{
-                    throw "The Module is not active for this year";
+                    BuzzSpace.createBuzzSpace(_moduleID ,_academicYear,_userID );
                 }
             }
-            else{
-                throw "Buzz Space Already Exists";
-            }
-        }
-        catch(err){
-            print(err.message);
-        }
-    },
 
-
-    /** closes a buzz space and renders it inactive*/
-    closeBuzzSpace: function()
-    {
-            this.isOpen = false;
-    },
-
-    /** Provides a persistent services provided by a JPA-compliant entitymManager to select the BuzzSpace*/
-    getBuzzSpaceRequest: function(_moduleID)
-    {
-	/** While it queries if finds a sapceID for the module return the spaceID or null*/
-        return _spaceID;
-    },
-
-    /** returns true or false based on if the space exists or not*/
-    getBuzzSpace: function (_moduleID) {
-
-        if(getBuzzSpaceRequest(_moduleID) != null)
-        {
-            return true;//If it exists return true
-        }
-        else
-        {
-            return false;//else if it doesn't exist therefore the spaceID is null return false
         }
 
     },
 
-    
 
-    /**Gets all the active modules from CSDS Adapter for that specific year and semester*/
-    getActiveModulesForYear: function (_year_group) {
-
-        if(getActiveModulesForYearRequest(_year_group) == "Lecture")
-            return false; /**If the Module is not active for that particular year and semester return false*/
-        else
-            return true;/** else the Module is active for that year return true*/
+    /**
+     * This function simply stores the created space to the database
+     * @param _moduleID represents the module code
+     * @param _isOpen boolean to check if space is Active
+     * @param _academicYear the year for which the space is to be created
+     */
 
 
-    },
-
-    /** Connects with the CSDataSources adapter to get the user roles for the module, this function is implemented by the buzzDataSource team */
-    getUsersRolesForModule: function (_userId) {
-
-        /**if(_userId == "Lecturer")
-            return false; //check to see if the passed user Id is a lecturer, if it is not return false
-        else
-            return true;//if the passed user is a lecture return true*/
-
-    },
-
-    /**Provides a persistent services provided by a JPA-compliant entitymManager to store the BuzzSpace*/
-    storeBuzzSpace: function () {
-
+    storeBuzzSpace: function (_moduleID, _isOpen ,_academicYear) {
+        //TODO: Supply database to test with
         var databaseUrl = "db";
         var collections = ["BuzzSpaces"];
         var db = require("mongojs").connect(databaseUrl, collections);
 
 
-        db.users.save({CreateBuzzSpaceResult()}, function(err, saved) {
+        db.users.save(CreateBuzzSpaceResult, function(err, saved) {
             if( err || !saved ) console.log("Space not saved");
             else console.log("Space saved");
         });
-	
-	this.isOpen = true;
 
     },
 
-    /**Creates a profile on buzz space for that user*/
-    registerOnSpace: function (_userId) {
-        /*register lecturer on BuzzSpace*/
-    },
+    /**
+     * Authorization module intercepts with this function to validate a user
+     * @param _userID stores the user ID
+     */
 
-    /**The lecurer is assigned to the administrator of the space can later assign other administrators*/
-    assignAdministrator: function (_userId) {
+    //TODO: Remove this - validation will be done with an Authentication Intercept
+    validateUser: function (_userID) {
 
-    },
-
-    /**Create the root thread for BuzzSpace*/
-    submitPost: function (_moduleID) {
+        //Authorization module to be included to allow for this method
 
     },
 
-    registerOnBuzzSpaceRequest: function()
+    /**
+     *Authorization module intercepts with this function to validate a users role
+     * @param _userID stores the user ID
+     */
+    //TODO: Remove this - We can assume that by the time this function is called - the user is valid (due to intercepts)
+    userRoleValid: function (_userID) {
+
+        // get user roles from CSDS Adapter
+        // Authorization module to be included to allow for this method
+
+    },
+
+
+    spaceExists: function (_moduleID) {
+        //TODO: Missing implementation
+        // get active spaces from MongoDB
+        //TODO: Authorization doesn't have an bearing on if a space exits or not? If I am not mistaking
+        // Authorization module to be included to allow for this method
+
+    },
+
+    //TODO:Remove - can not assign administrators, retreived from CS LDAP
+    assignAdministrator: function (_userID) {
+
+        this.admin = _userID;
+
+    },
+
+
+    /**
+     * getter function for moduleID
+     * @returns {string} returns the module ID
+     */
+    getModuleId: function(){
+        return this.moduleID;
+    } ,
+
+
+    /**
+     * getter function for the academic year
+     * @returns {string} returns the module ID
+     */
+    getAcademicYear: function(){
+        return this.academicYear;
+    } ,
+
+    /**
+     * function returns true if space is active
+     * @returns {boolean} returns true or false
+     */
+    isActive: function(){
+
+        return this.isOpen;
+
+    },
+
+    /**
+     * This function deletes the space from MongoDb
+     * @param _moduleID represents the module code
+     */
+
+    deleteBuzzSpace: function (_moduleID) {
+
+        deleteFromDb(_moduleID);
+
+    },
+
+
+    /**
+     *Function simply adds the new user to a list of registered users
+     * @param userID represents the user ID
+     * @param _moduleID represents the module code
+     */
+
+    //TODO: Update DB
+    registerOnSpace: function (userID,_moduleID) {
+
+        users.add(userID,_moduleID);
+    },
+
+    /**
+     * Threads module to be required for this method hat creates a root thread for the space
+     */
+    //TODO: Use a mock Thread Object
+    //TODO: Please implement
+    createRootThread: function () {
+
+    },
+
+    /**
+     *
+     *  @description Return a user object
+     *  @param username The user id
+     */
+    getUserProfile: function( username )
     {
-        var userID = require('login');
-        return userID;
+        //return csds.getUserProfile( username );
+        var user = { user_id: "Tsepho", password: "1234" };
+        return user;
     },
 
-    registerOnSpace: function(_userID)
+    /**
+     *
+     *  @description Function used to set a buzzspace inactive
+     *  @param username The user id
+     *  @module_id The id of the module being closed
+     */
+    closeBuzzSpace: function( user_id, module_id )
     {
-        if(!this.isOpen)
-            return new Error("Buzz space not active");
-        else if(registerOnBuzzSpaceRequest)
-            return new Error("User not authorized to use this buzz space");
-        else if(this.isOpen && getProfileForUser(registerOnBuzzSpaceRequest)!= "No such user")
-            return getProfileForUser(registerOnBuzzSpaceRequest);
+        /*if( authorization.isAuthorized( user_id, module_id ) )
+        {
+            var space = csds.getBuzzSpace( module_id );
+            space.isOpen = false;
+            return true;
+        }
+
+        else*/
+           console.log( "User \"" + user_id + "\" is not authorized in \"" + module_id + "\"");
+    },
+
+    /**
+     *
+     *  @description Function used to register a user to a buzzspace
+     *  @param username The user id
+     *  @module_id The id of the module the user is registering to
+     *  @param module_id The password of the user
+     */
+    registerOnBuzzSpace: function( username, module_id )
+    {
+        //var space = csds.getBuzzSpace( module_id );
+
+        if( true )
+        {
+            var user = BuzzSpace.getUserProfile( username );
+
+            if( user === null )
+                throw "User ID \"" + username + "\" does not exist";
+
+            try
+            {
+                //space.registerOnBuzzSpace( username );
+                console.log( "Registered " + username +" for " + module_id );
+            }
+            catch( e )
+            {
+                throw e;
+            }
+        }
+
         else
-            return new ProfileData();
-    },
-
-    //ProfileData constructor
-    ProfileData: function()
-    {
-        var userNameForBuzzSpace;
-        var photo;
-        var signature;
-    },
-
-    //gets the user profile
-    getProfileForUser: function(user)
-    {
-        if(user)
-            return user.ProfileData();
-        else
-            return new Error("No such user");
+            throw "BuzzSpace \"" + module_id + "\" is closed";
     }
-
-
 };
+
+module.exports.login = BuzzSpace.login;
+module.exports.createBuzzSpace = BuzzSpace.createBuzzSpaceRequest;
+module.exports.closeBuzzSpace = BuzzSpace.closeBuzzSpace;
+module.exports.registerOnBuzzSpace = BuzzSpace.registerOnBuzzSpace;
+module.exports.getUserProfile = BuzzSpace.getUserProfile;
