@@ -2,7 +2,7 @@
  * @author Godfrey Mathe, u13103394
  * @author Semaka Malapane, u13081129
  * @author Joseph Potgieter, u12003672
- * @author Tsepo Ntsaba, u12003672
+ * @author Tsepo Ntsaba, u10668544
  * @author Tebogo Seshibe, u13181442
  * @author Muller Potgieter 
  * @version 0.0.5
