@@ -4,18 +4,18 @@
  * @author Joseph Potgieter, u12003672
  * @author Tsepo Ntsaba, u10668544
  * @author Tebogo Seshibe, u13181442
- * @author Muller Potgieter 
- * @version 0.0.5
+ * @version 0.0.6
  */
 
+
+var csds = require( "./csds")
 
 /**
  *
- * @description BuzzSpace class containing the required functions in the main specifications
+ * @description BuzzSpace class containing the resuired functions in the main specifications
  */
 var BuzzSpace =
 {
-    //csds: require( "./CSDS"),
     //authorization: require( "./Authorization"),
     moduleID: "",
     isOpen: false,
@@ -34,12 +34,12 @@ var BuzzSpace =
         try
         {
             var loginRequest = { user_id: _username, password: _password };
-            //csds.login( loginRequest );
-            console.log( "Login Succesful" );
+            var result = csds.login( loginRequest );
+            console.log( "Result: " + result );
         }
         catch( e )
         {
-            return e.toString;
+            console.log( e );
         }
     },
 
@@ -70,21 +70,8 @@ var BuzzSpace =
 
     createBuzzSpace: function (_moduleID ,_academicYear,_userID ) {
 
-        /**
-         * Register the user first  onto the space created
-         */
-            //TODO: Where is registerUser?
+        csds.createBuzzSpace( _moduleID );
         BuzzSpace.registerOnBuzzSpace(_userID, _moduleID);
-        /**
-         * Make the user an admin for the space created
-         */
-            //TODO: A user can't be assigned as an administrator - that comes from LDAP and is determined by the CS Department
-        //assignAdministrator(_userID);
-
-        /**
-         * Store space to persistance
-         */
-        //storeBuzzSpace();
     },
 
 
@@ -102,29 +89,34 @@ var BuzzSpace =
 
     /**
      * Function that creates a request
-     * and checks if the user is authorised to create a space and whether a space for the moduleID does not exist yet
+     * and checks if the user is authorised to create a space and wether a space for the moduleID does not exist yet
      * @param _userID stores the ID of the user
      * @param _moduleID represents the module code
      */
 
-    createBuzzSpaceRequest: function (_userID, _academicYear, _moduleID) {
-        //TODO: Validation is done beforehand with intercepts
-        var userValid = true; //authorization.validateUser(_userID); //return true if the user is recognised , Done by authorization through inteceptors
-        //TODO: Validation is done beforehand with intercepts
-        var userRoleValid = true; //authorization.userRoleValid(_userID); // check to return true see if the user is a lecturer else return null
-        var spaceExists = false; //csds.spaceExists(_moduleID); //return true if space exists else null
+    createBuzzSpaceRequest: function (_userID, _academicYear, _moduleID ) {
+        var user = csds.getUserProfile(_userID);
+        var userValid = user != null;
 
-        if(userValid)
+        if (userValid)
         {
-            if(userRoleValid){
-                if(!spaceExists)
-                {
-                    BuzzSpace.createBuzzSpace(_moduleID ,_academicYear,_userID );
+            var userRoleValid = user.admin;
+            var spaceExists = csds.getBuzzSpace(_moduleID) != null; //csds.spaceExists(_moduleID); //return true if space exists else null
+
+            if (userRoleValid )
+            {
+                if( !spaceExists) {
+                    BuzzSpace.createBuzzSpace(_moduleID, _academicYear, _userID);
                 }
+                else
+                    console.log( "BuzzSpace \"" + _moduleID + "\" exists" );
             }
 
+            else
+                console.log( "User \"" + _userID + "\" is not authorized");
         }
-
+        else
+            console.log( "User \"" + _userID + "\" does not exist");
     },
 
 
@@ -137,7 +129,6 @@ var BuzzSpace =
 
 
     storeBuzzSpace: function (_moduleID, _isOpen ,_academicYear) {
-        //TODO: Supply database to test with
         var databaseUrl = "db";
         var collections = ["BuzzSpaces"];
         var db = require("mongojs").connect(databaseUrl, collections);
@@ -155,7 +146,7 @@ var BuzzSpace =
      * @param _userID stores the user ID
      */
 
-    //TODO: Remove this - validation will be done with an Authentication Intercept
+    // Remove this - validation will be done with an Authentication Intercept
     validateUser: function (_userID) {
 
         //Authorization module to be included to allow for this method
@@ -166,7 +157,7 @@ var BuzzSpace =
      *Authorization module intercepts with this function to validate a users role
      * @param _userID stores the user ID
      */
-    //TODO: Remove this - We can assume that by the time this function is called - the user is valid (due to intercepts)
+    //Remove this - We can assume that by the time this function is called - the user is valid (due to intercepts)
     userRoleValid: function (_userID) {
 
         // get user roles from CSDS Adapter
@@ -176,17 +167,10 @@ var BuzzSpace =
 
 
     spaceExists: function (_moduleID) {
-        //TODO: Missing implementation
+        // Missing implementation
         // get active spaces from MongoDB
-        //TODO: Authorization doesn't have an bearing on if a space exits or not? If I am not mistaking
+        // Authorization doesn't have an bearing on if a space exits or not? If I am not mistaking
         // Authorization module to be included to allow for this method
-
-    },
-
-    //TODO:Remove - can not assign administrators, retreived from CS LDAP
-    assignAdministrator: function (_userID) {
-
-        this.admin = _userID;
 
     },
 
@@ -236,7 +220,7 @@ var BuzzSpace =
      * @param _moduleID represents the module code
      */
 
-    //TODO: Update DB
+    // Update DB
     registerOnSpace: function (userID,_moduleID) {
 
         users.add(userID,_moduleID);
@@ -245,8 +229,8 @@ var BuzzSpace =
     /**
      * Threads module to be required for this method hat creates a root thread for the space
      */
-    //TODO: Use a mock Thread Object
-    //TODO: Please implement
+    // Use a mock Thread Object
+    // Please implement
     createRootThread: function () {
 
     },
@@ -271,14 +255,24 @@ var BuzzSpace =
      */
     closeBuzzSpace: function( user_id, module_id )
     {
-        /*if( authorization.isAuthorized( user_id, module_id ) )
+        var user = csds.getUserProfile( user_id );
+        if( user == null )
+            console.log( "User \"" + user_id + "\" does not exist" );
+
+        else if( user.admin )
         {
             var space = csds.getBuzzSpace( module_id );
-            space.isOpen = false;
-            return true;
+
+            if( space == null )
+                console.log( "Module \"" + module_id + "\" does not exist" );
+            else
+            {
+                space.isOpen = false;
+                console.log( "BuzzSpace \"" + module_id + "\" is now closed" );
+            }
         }
 
-        else*/
+        else
            console.log( "User \"" + user_id + "\" is not authorized in \"" + module_id + "\"");
     },
 
@@ -291,14 +285,17 @@ var BuzzSpace =
      */
     registerOnBuzzSpace: function( username, module_id )
     {
-        //var space = csds.getBuzzSpace( module_id );
+        var space = csds.getBuzzSpace( module_id );
 
-        if( true )
+        if( space == null )
+            console.log( "Module " + module_id + " does not exist" );
+
+        else if( space.isOpen )
         {
             var user = BuzzSpace.getUserProfile( username );
 
             if( user === null )
-                throw "User ID \"" + username + "\" does not exist";
+                console.log( "User ID \"" + username + "\" does not exist" );
 
             try
             {
@@ -312,7 +309,7 @@ var BuzzSpace =
         }
 
         else
-            throw "BuzzSpace \"" + module_id + "\" is closed";
+            console.log( "BuzzSpace \"" + module_id + "\" is closed" );
     }
 };
 
