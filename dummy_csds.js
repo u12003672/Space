@@ -28,7 +28,7 @@ var Database =
 		{ user_id: "u12003672", password: "password",  admin: false, firstname: "Joseph",  lastname: "Potgieter" },
 		{ user_id: "u10668544", password: "password1", admin: true,  firstname: "Tsepo",   lastname: "Ntsaba" },
 		{ user_id: "u13181442", password: "1337sp34k", admin: false, firstname: "Tebogo",  lastname: "Seshibe" }
-	],/*< An array of user objects */
+	],/*< An array of user objects */ 
 		
 	/**
 	 *
