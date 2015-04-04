@@ -1,0 +1,19 @@
+{
+  "name": "Space",
+  "version": "1.0.0",
+  "description": "Buzz Space functional module",
+  "main": "buzzSpace.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BuzzSpaceB/Space.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BuzzSpaceB/Space/issues"
+  },
+  "homepage": "https://github.com/BuzzSpaceB/Space"
+}
