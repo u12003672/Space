@@ -15,5 +15,37 @@
   "bugs": {
     "url": "https://github.com/BuzzSpaceB/Space/issues"
   },
-  "homepage": "https://github.com/BuzzSpaceB/Space"
+  "homepage": "https://github.com/BuzzSpaceB/Space",
+  
+  "dependencies": {
+  "CSDS": "git://github.com/BuzzSpaceB/CSDS#master",
+  "mongoose": "^4.0.1",
+  "DatabaseStuff": "git://github.com/BuzzSpaceB/DatabaseStuff#master"
+  },
+  "contributors": [
+  {
+    "name": "Godfrey Mathe",
+    "studentNo": "13103394",
+    "email": "u13103394@tuks.co.za"
+  },
+  {
+    "name": "Tsepo Ntsaba",
+    "studentNo": "10668544",
+    "email": "therealmrntsaba@gmail.com"
+  },
+  {
+    "name": "Semaka Malapane",
+    "studentNo": "13081129",
+    "email": "u13081129@tuks.co.za"
+  },
+  {
+    "name": "Muller Potgieter",
+    "studentNo": "12003672",
+    "email": "mullerpotgieter@gmail.com"
+  },
+  {
+    "name": "Tebogo Seshibe",
+    "studentNo": "13181442",
+    "email": "Tseshibe@gmail.com"
+  }]
 }
